@@ -46,7 +46,7 @@ namespace Enyim.Caching
 		protected IServerPool Pool { get { return this.pool; } }
 		protected IMemcachedKeyTransformer KeyTransformer { get { return this.keyTransformer; } }
 		protected ITranscoder Transcoder { get { return this.transcoder; } }
-		protected IPerformanceMonitor PerformanceMonitor { get { return this.performanceMonitor; } }
+		//protected IPerformanceMonitor PerformanceMonitor { get { return this.performanceMonitor; } }
 
 		/// <summary>
 		/// Initializes a new MemcachedClient instance using the specified configuration section. 
@@ -68,7 +68,7 @@ namespace Enyim.Caching
 
 			this.keyTransformer = configuration.CreateKeyTransformer() ?? new DefaultKeyTransformer();
 			this.transcoder = configuration.CreateTranscoder() ?? new DefaultTranscoder();
-			this.performanceMonitor = configuration.CreatePerformanceMonitor();
+            //this.performanceMonitor = configuration.CreatePerformanceMonitor();
 
 			this.pool = configuration.CreatePool();
 			this.pool.NodeFailed += (n) => { var f = this.NodeFailed; if (f != null) f(n); };
@@ -91,7 +91,7 @@ namespace Enyim.Caching
 			if (keyTransformer == null) throw new ArgumentNullException("keyTransformer");
 			if (transcoder == null) throw new ArgumentNullException("transcoder");
 
-			this.performanceMonitor = performanceMonitor;
+            //this.performanceMonitor = performanceMonitor;
 			this.keyTransformer = keyTransformer;
 			this.transcoder = transcoder;
 
@@ -198,7 +198,7 @@ namespace Enyim.Caching
 					result.Value = value = this.transcoder.Deserialize(command.Result);
 					result.Cas = cas = command.CasValue;
 
-					if (this.performanceMonitor != null) this.performanceMonitor.Get(1, true);
+					//if (this.performanceMonitor != null) this.performanceMonitor.Get(1, true);
 
 					result.Pass();
 					return result;
@@ -213,7 +213,7 @@ namespace Enyim.Caching
 			result.Value = value;
 			result.Cas = cas;
 
-			if (this.performanceMonitor != null) this.performanceMonitor.Get(1, false);
+			//if (this.performanceMonitor != null) this.performanceMonitor.Get(1, false);
 
 			result.Fail("Unable to locate node");
 			return result;
@@ -360,7 +360,7 @@ namespace Enyim.Caching
 				{
 					log.Error(e);
 
-					if (this.performanceMonitor != null) this.performanceMonitor.Store(mode, 1, false);
+					//if (this.performanceMonitor != null) this.performanceMonitor.Store(mode, 1, false);
 
 					result.Fail("PerformStore failed", e);
 					return result;
@@ -374,7 +374,7 @@ namespace Enyim.Caching
 
 				if (commandResult.Success)
 				{
-					if (this.performanceMonitor != null) this.performanceMonitor.Store(mode, 1, true);
+					//if (this.performanceMonitor != null) this.performanceMonitor.Store(mode, 1, true);
 					result.Pass();
 					return result;
 				}
@@ -383,7 +383,7 @@ namespace Enyim.Caching
 				return result;
 			}
 
-			if (this.performanceMonitor != null) this.performanceMonitor.Store(mode, 1, false);
+			//if (this.performanceMonitor != null) this.performanceMonitor.Store(mode, 1, false);
 
 			result.Fail("Unable to locate node");
 			return result;
@@ -605,21 +605,21 @@ namespace Enyim.Caching
 
 				if (commandResult.Success)
 				{
-					if (this.performanceMonitor != null) this.performanceMonitor.Mutate(mode, 1, commandResult.Success);
+					//if (this.performanceMonitor != null) this.performanceMonitor.Mutate(mode, 1, commandResult.Success);
 					result.Value = command.Result;
 					result.Pass();
 					return result;
 				}
 				else
 				{
-					if (this.performanceMonitor != null) this.performanceMonitor.Mutate(mode, 1, false);
+					//if (this.performanceMonitor != null) this.performanceMonitor.Mutate(mode, 1, false);
 					result.InnerResult = commandResult;
 					result.Fail("Mutate operation failed, see InnerResult or StatusCode for more details");
 				}
 
 			}
 
-			if (this.performanceMonitor != null) this.performanceMonitor.Mutate(mode, 1, false);
+			//if (this.performanceMonitor != null) this.performanceMonitor.Mutate(mode, 1, false);
 
 			// TODO not sure about the return value when the command fails
 			result.Fail("Unable to locate node");
@@ -699,7 +699,7 @@ namespace Enyim.Caching
 				{
 					result.Cas = cas = command.CasValue;
 					result.StatusCode = command.StatusCode;
-					if (this.performanceMonitor != null) this.performanceMonitor.Concatenate(mode, 1, true);
+					//if (this.performanceMonitor != null) this.performanceMonitor.Concatenate(mode, 1, true);
 					result.Pass();
 				}
 				else
@@ -711,7 +711,7 @@ namespace Enyim.Caching
 				return result;
 			}
 
-			if (this.performanceMonitor != null) this.performanceMonitor.Concatenate(mode, 1, false);
+			//if (this.performanceMonitor != null) this.performanceMonitor.Concatenate(mode, 1, false);
 
 			result.Fail("Unable to locate node");
 			return result;
@@ -839,6 +839,7 @@ namespace Enyim.Caching
 							if (action.EndInvoke(iar).Success)
 							{
 								#region perfmon
+                                /*
 								if (this.performanceMonitor != null)
 								{
 									// full list of keys sent to the server
@@ -855,6 +856,7 @@ namespace Enyim.Caching
 									if (resultCount != expectedCount)
 										this.performanceMonitor.Get(expectedCount - resultCount, true);
 								}
+                                */
 								#endregion
 
 								// deserialize the items in the dictionary
@@ -990,12 +992,13 @@ namespace Enyim.Caching
 				try { this.pool.Dispose(); }
 				finally { this.pool = null; }
 			}
-
+            /*
 			if (this.performanceMonitor != null)
 			{
 				try { this.performanceMonitor.Dispose(); }
 				finally { this.performanceMonitor = null; }
 			}
+            */
 		}
 
 		#endregion

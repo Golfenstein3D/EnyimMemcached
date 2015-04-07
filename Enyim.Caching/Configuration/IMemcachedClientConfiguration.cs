@@ -42,7 +42,7 @@ namespace Enyim.Caching.Configuration
 
 		IServerPool CreatePool();
 
-		IPerformanceMonitor CreatePerformanceMonitor();
+		//IPerformanceMonitor CreatePerformanceMonitor();
 	}
 }
 
