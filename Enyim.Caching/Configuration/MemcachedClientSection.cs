@@ -148,12 +148,12 @@ namespace Enyim.Caching.Configuration
 
 			throw new ArgumentOutOfRangeException("Unknown protocol: " + (int)this.Protocol);
 		}
-        /*
+
 		IPerformanceMonitor IMemcachedClientConfiguration.CreatePerformanceMonitor()
 		{
-			return this.PerformanceMonitor.CreateInstance();
+            return null; //this.PerformanceMonitor.CreateInstance();
 		}
-        */
+
 		#endregion
 	}
 }
