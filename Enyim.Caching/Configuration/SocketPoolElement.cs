@@ -67,6 +67,26 @@ namespace Enyim.Caching.Configuration
 		}
 
 		/// <summary>
+		/// Gets or sets a value that specifies the amount of time interval would sent keepalive packet(ms).
+		/// </summary>
+		[ConfigurationProperty("keepAliveInterval", IsRequired = false, DefaultValue = "00:05:00"), PositiveTimeSpanValidator, TypeConverter(typeof(InfiniteTimeSpanConverter))]
+		public TimeSpan KeepAliveInterval
+		{
+			get { return (TimeSpan)base["keepAliveInterval"]; }
+			set { base["keepAliveInterval"] = value; }
+		}
+
+		/// <summary>
+		/// Gets or sets a value that specifies the amount of time will client starts sent keepalive packet(ms).
+		/// </summary>
+		[ConfigurationProperty("keepAliveStartFrom", IsRequired = false, DefaultValue = "00:05:00"), PositiveTimeSpanValidator, TypeConverter(typeof(InfiniteTimeSpanConverter))]
+		public TimeSpan KeepAliveStartDelay
+		{
+			get { return (TimeSpan)base["keepAliveStartFrom"]; }
+			set { base["keepAliveStartFrom"] = value; }
+		}
+
+		/// <summary>
 		/// Gets or sets a value that specifies the amount of time after which an unresponsive (dead) server will be checked if it is working.
 		/// </summary>
 		/// <returns>The value of the dead timeout. The default is 10 secs.</returns>
@@ -133,6 +153,18 @@ namespace Enyim.Caching.Configuration
 			set { this.ReceiveTimeout = value; }
 		}
 
+		TimeSpan ISocketPoolConfiguration.KeepAliveStartDelay
+		{
+			get { return this.KeepAliveStartDelay; }
+			set { this.KeepAliveStartDelay = value; }
+		}
+
+		TimeSpan ISocketPoolConfiguration.KeepAliveInterval
+		{
+			get { return this.KeepAliveInterval; }
+			set { this.KeepAliveInterval = value; }
+		}
+
 		INodeFailurePolicyFactory ISocketPoolConfiguration.FailurePolicyFactory
 		{
 			get { return this.FailurePolicyFactory.CreateInstance() ?? new FailImmediatelyPolicyFactory(); }
@@ -145,20 +177,20 @@ namespace Enyim.Caching.Configuration
 
 #region [ License information          ]
 /* ************************************************************
- * 
+ *
  *    Copyright (c) 2010 Attila Kiskó, enyim.com
- *    
+ *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
- *    
+ *
  *        http://www.apache.org/licenses/LICENSE-2.0
- *    
+ *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
  *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
- *    
+ *
  * ************************************************************/
 #endregion

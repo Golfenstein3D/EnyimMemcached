@@ -8,6 +8,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using System.Runtime.InteropServices;
 
 namespace Enyim.Caching.Memcached
 {
@@ -23,7 +24,7 @@ namespace Enyim.Caching.Memcached
 		private BufferedStream inputStream;
 		private AsyncSocketHelper helper;
 
-		public PooledSocket(IPEndPoint endpoint, TimeSpan connectionTimeout, TimeSpan receiveTimeout)
+		public PooledSocket(IPEndPoint endpoint, TimeSpan connectionTimeout, TimeSpan receiveTimeout, TimeSpan keepAliveStartDelay, TimeSpan keepAliveInterval)
 		{
 			this.isAlive = true;
 
@@ -41,14 +42,27 @@ namespace Enyim.Caching.Memcached
 
 			socket.ReceiveTimeout = rcv;
 			socket.SendTimeout = rcv;
-			socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
 
+			ConfigureKeepAlive(socket, keepAliveStartDelay, keepAliveInterval);
 			ConnectWithTimeout(socket, endpoint, timeout);
 
 			this.socket = socket;
 			this.endpoint = endpoint;
 
 			this.inputStream = new BufferedStream(new BasicNetworkStream(socket));
+		}
+
+		private static void ConfigureKeepAlive(Socket socket, TimeSpan keepAliveStartFrom, TimeSpan keepAliveInterval)
+		{
+			var SizeOfUint = Marshal.SizeOf((uint)0);
+			var inOptionValues = new byte[SizeOfUint * 3];
+			var isEnabled = keepAliveStartFrom > TimeSpan.Zero || keepAliveInterval > TimeSpan.Zero;
+
+			BitConverter.GetBytes((uint)(isEnabled ? 1 : 0)).CopyTo(inOptionValues, 0);
+			BitConverter.GetBytes((uint)keepAliveInterval.TotalMilliseconds).CopyTo(inOptionValues, SizeOfUint);
+			BitConverter.GetBytes((uint)keepAliveStartFrom.TotalMilliseconds).CopyTo(inOptionValues, SizeOfUint * 2);
+
+			socket.IOControl(IOControlCode.KeepAliveValues, inOptionValues, null);
 		}
 
 		private static void ConnectWithTimeout(Socket socket, IPEndPoint endpoint, int timeout)
@@ -155,7 +169,16 @@ namespace Enyim.Caching.Memcached
 				Action<PooledSocket> cc = this.CleanupCallback;
 
 				if (cc != null)
-					cc(this);
+				{
+					try
+					{
+						cc(this);
+					}
+					catch (Exception e)
+					{
+						log.Info("CleanupCallback failed during Dispose. Ignoring the exception.", e);
+					}
+				}
 			}
 		}
 
@@ -291,20 +314,20 @@ namespace Enyim.Caching.Memcached
 
 #region [ License information          ]
 /* ************************************************************
- * 
+ *
  *    Copyright (c) 2010 Attila Kiskó, enyim.com
- *    
+ *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
- *    
+ *
  *        http://www.apache.org/licenses/LICENSE-2.0
- *    
+ *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
  *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
- *    
+ *
  * ************************************************************/
 #endregion
