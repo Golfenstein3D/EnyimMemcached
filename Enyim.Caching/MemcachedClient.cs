@@ -68,7 +68,7 @@ namespace Enyim.Caching
 
 			this.keyTransformer = configuration.CreateKeyTransformer() ?? new DefaultKeyTransformer();
 			this.transcoder = configuration.CreateTranscoder() ?? new DefaultTranscoder();
-            this.performanceMonitor = configuration.CreatePerformanceMonitor();
+			this.performanceMonitor = configuration.CreatePerformanceMonitor();
 
 			this.pool = configuration.CreatePool();
 			this.pool.NodeFailed += (n) => { var f = this.NodeFailed; if (f != null) f(n); };
@@ -91,7 +91,7 @@ namespace Enyim.Caching
 			if (keyTransformer == null) throw new ArgumentNullException("keyTransformer");
 			if (transcoder == null) throw new ArgumentNullException("transcoder");
 
-            this.performanceMonitor = performanceMonitor;
+			this.performanceMonitor = performanceMonitor;
 			this.keyTransformer = keyTransformer;
 			this.transcoder = transcoder;
 
@@ -845,7 +845,7 @@ namespace Enyim.Caching
 							if (action.EndInvoke(iar).Success)
 							{
 								#region perfmon
-                                /*
+								/*
 								if (this.performanceMonitor != null)
 								{
 									// full list of keys sent to the server
@@ -862,7 +862,7 @@ namespace Enyim.Caching
 									if (resultCount != expectedCount)
 										this.performanceMonitor.Get(expectedCount - resultCount, true);
 								}
-                                */
+								*/
 								#endregion
 
 								// deserialize the items in the dictionary
@@ -1013,7 +1013,7 @@ namespace Enyim.Caching
 #region [ License information          ]
 /* ************************************************************
  * 
- *    Copyright (c) 2010 Attila Kiskó, enyim.com
+ *    Copyright (c) 2010 Attila KiskÃ³, enyim.com
  *    
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
